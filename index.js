@@ -10,25 +10,22 @@ app.use(express.json());
 
 //database connection
 mongoose
-  .connect("mongodb+srv://admin:sahaanik@cluster0.f4r9bam.mongodb.net/?retryWrites=true&w=majority", {})
+  .connect(
+    "mongodb+srv://admin:sahaanik@cluster0.f4r9bam.mongodb.net/?retryWrites=true&w=majority",
+    {}
+  )
   .then(() => console.log("connected successfully"))
   .catch((err) => console.log(err));
 
+//database connection end
 
-  //error handler
-  function errorHandler(err, req, res, next) {
-    if (res.headersSent) {
-      return next(err);
-    }
-    res.status(500).json({ error: err });
+//error handler
+function errorHandler(err, req, res, next) {
+  if (res.headersSent) {
+    return next(err);
   }
-
-// function errorHandler(err, req, res, next) {
-//   if (res.headersSent) {
-//     return next(err);
-//   }
-//   res.status(500).json({ error: err });
-// }
+  res.status(500).json({ error: err });
+}
 
 //test api
 app.get("/", (req, res) => {
