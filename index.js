@@ -11,7 +11,7 @@ app.use(express.json());
 //database connection
 mongoose
   .connect(
-    "mongodb+srv://admin:sahaanik@cluster0.f4r9bam.mongodb.net/?retryWrites=true&w=majority",
+    "mongodb+srv://admin:sahaanik@cluster0.8zslau4.mongodb.net/?retryWrites=true&w=majority",
     {}
   )
   .then(() => console.log("connected successfully"))
@@ -34,6 +34,7 @@ app.get("/", (req, res) => {
 
 app.use("/user", userHandler);
 
-app.listen(port, () => {
+app.listen(port, (a) => {
+  console.log(a);
   console.log(`app listening at port ${port}`);
 });

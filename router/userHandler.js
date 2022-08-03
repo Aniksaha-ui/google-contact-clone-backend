@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const { getData, postData } = require("../controller/UserController");
 const jwt = require("jsonwebtoken");
 const User = require("../model/user");
+require("dotenv").config();
 
 //verify jwt token
 function verifyJWT(req, res, next) {
@@ -40,12 +41,38 @@ router.post("/register", async (req, res) => {
 
 //login
 router.post("/login", async (req, res) => {
-  const user = req.body;
-  const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN, {
-    expiresIn: "1d",
-  });
-  // console.log(user);
-  res.send({ accessToken });
+  const email = req.body.email;
+  const password = req.body.password;
+
+  const userFound = await User.find({email:email,password:password})
+  
+  const token = jwt.sign(
+    { email: email },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "1h" }
+  );
+
+  if(token){
+    res.send({ token });
+  }
+    res.send({massage:"data not found"})
+  
+});
+
+//register
+router.post("/register", async (req, res) => {
+  const user = new User(req.body);
+  const { email } = req.body;
+  try {
+    await user.save();
+    const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: "1h",
+    });
+    res.send({ token });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({ message: "data can not be inserted" });
+  }
 });
 
 router.get("/", async (req, res) => {
