@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const { getData, postData } = require("../controller/UserController");
 const jwt = require("jsonwebtoken");
 const User = require("../model/user");
+const Contact = require("../model/contacts");
+const e = require("express");
 require("dotenv").config();
 
 //verify jwt token
@@ -45,41 +47,63 @@ router.post("/login", async (req, res) => {
   const password = req.body.password;
 
   const userFound = await User.find({email:email,password:password})
-  
-  const token = jwt.sign(
+  if(userFound.length>0){
+    console.log("found");
+    const token = jwt.sign(
     { email: email },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "1h" }
   );
 
   if(token){
-    res.send({ token });
+    res.send({status:200, token });
   }
-    res.send({massage:"data not found"})
+   
+
+  }else{
+    res.send({status:404,massage:"data not found"})
+    console.log("Not found");
+  }
+
   
 });
 
-//register
-router.post("/register", async (req, res) => {
-  const user = new User(req.body);
-  const { email } = req.body;
-  try {
-    await user.save();
-    const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: "1h",
-    });
-    res.send({ token });
-  } catch (error) {
-    console.log(error);
-    res.status(400).send({ message: "data can not be inserted" });
-  }
+//get my contact
+router.get("/mycontact",verifyJWT ,async(req,res)=>{
+  const decodedEmail = req.decoded.email;
+  const email = req.query.email;
+  if (email === decodedEmail) {
+    const contact = Contact.find({})
+    res.send(contact);
+  } else {
+    res.status(403).send({ message: "forbidden access" });
+  } 
+})
+
+//post a new contact
+
+router.post("/mycontact", async(req,res)=>{
+  
+    const contact = new Contact(req.body);
+    try{
+     const contactInfo = await contact.save();
+     res.send({contact,"message":"data inserted"});
+    } catch{
+
+    }
 });
 
-router.get("/", async (req, res) => {
+
+//get all users
+router.get("/",  async (req, res) => {
   const user = await User.find({});
   if (!user) {
     res.status(400).send({ message: "data not found" });
   }
   res.send(user);
 });
+
+
+
+
 module.exports = router;
