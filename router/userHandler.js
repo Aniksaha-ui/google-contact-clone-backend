@@ -34,8 +34,6 @@ router.post("/register", async (req, res) => {
   const {password} = user;
   try {
     await user.save();
-   
-    await main(email,password).catch(console.error);
     const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: "1h",
     });
@@ -143,10 +141,16 @@ async function main(email,password) {
 //authorization
 router.get("/authentication/:id",  async (req, res) => {
   const _id = req.params.id;
-  console.log(_id, "hello")
+  console.log(_id)
+
+
   const userUpdateAuth = await User.updateOne({_id
     : _id}, { authentication: 1 })
-  if (!userUpdateAuth) {
+    const user = await User.find({_id:_id})
+    // const {email,password} = user[0];
+    // console.log(email,password);
+    await main(email,password).catch(console.error);
+    if (!userUpdateAuth) {
     res.status(400).send({ message: "Authentication is not done" });
   }
   res.send(userUpdateAuth);
