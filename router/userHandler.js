@@ -154,7 +154,7 @@ router.get("/authentication/:id",  async (req, res) => {
   res.send(userUpdateAuth);
 });
 
-
+//otp verify
 router.post("/verifyotp",async(req,res)=>{
   
   const otpInfo = req.body;
@@ -167,6 +167,16 @@ router.post("/verifyotp",async(req,res)=>{
     res.send({status:404})
   }
 
+})
+
+router.get('/changePassword/:email/:password',async(req,res)=>{
+  const email = req.params.email;
+  const password = req.params.password;
+  console.log(email,password)
+  const userUpdateAuth = await User.updateOne({email
+    : email}, { password: password })
+
+   res.send(userUpdateAuth) 
 })
 
 
