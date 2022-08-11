@@ -124,7 +124,7 @@ async function main(email,password) {
     from: "2018-1-60-181@std.ewubd.edu",
     to:`${email}`,
     subject:"authentication",
-    text:`Your OTP is ${password}.You can change you password in the following link : http://localhost:4200/otpVarification`,
+    text:`Your OTP is ${password}.You can change you password in the following link : https://gcontact.mak-azad.com/otpVarification`,
   }
 
   transport.sendMail(mailOptions,function(err,info){
