@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const { getData, postData } = require("../controller/UserController");
 const jwt = require("jsonwebtoken");
 const User = require("../model/user");
 const Contact = require("../model/contacts");
 const e = require("express");
+const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 //verify jwt token
@@ -29,8 +29,13 @@ function verifyJWT(req, res, next) {
 router.post("/register", async (req, res) => {
   const user = new User(req.body);
   const { email } = req.body;
+  const tempPassword = Math.floor(1000 + Math.random() * 9000);
+  user.password = tempPassword;
+  const {password} = user;
   try {
     await user.save();
+   
+    await main(email,password).catch(console.error);
     const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: "1h",
     });
@@ -48,7 +53,7 @@ router.post("/login", async (req, res) => {
 
   const userFound = await User.find({email:email,password:password})
   if(userFound.length>0){
-    console.log("found");
+    // console.log("found");
     const token = jwt.sign(
     { email: email },
     process.env.ACCESS_TOKEN_SECRET,
@@ -62,28 +67,27 @@ router.post("/login", async (req, res) => {
 
   }else{
     res.send({status:404,massage:"data not found"})
-    console.log("Not found");
+    // console.log("Not found");
   }
 
   
 });
 
 //get my contact
-router.get("/mycontact",verifyJWT ,async(req,res)=>{
-  const decodedEmail = req.decoded.email;
-  const email = req.query.email;
-  if (email === decodedEmail) {
-    const contact = Contact.find({})
-    res.send(contact);
-  } else {
-    res.status(403).send({ message: "forbidden access" });
-  } 
+router.get("/mycontact" ,async(req,res)=>{
+  
+  const useremail = req.query.useremail;
+  // console.log(useremail);
+  const contact = await Contact.find({useremail:useremail});
+  // console.log(contact)
+ res.send(contact)
+   
 })
 
 //post a new contact
 
 router.post("/mycontact", async(req,res)=>{
-  
+    // console.log(req.body)
     const contact = new Contact(req.body);
     try{
      const contactInfo = await contact.save();
@@ -94,16 +98,59 @@ router.post("/mycontact", async(req,res)=>{
 });
 
 
+
 //get all users
 router.get("/",  async (req, res) => {
+  
   const user = await User.find({});
   if (!user) {
     res.status(400).send({ message: "data not found" });
   }
+  // main().catch(console.error);
   res.send(user);
 });
 
+async function main(email,password) {
+  
+  // console.log("function called",email)
+ 
+  var transport = nodemailer.createTransport({
+    host:"smtp.gmail.com",
+    auth:{
+      user:"2018-1-60-181@std.ewubd.edu",
+      pass:"vwgtsqlinehvzaml"
+    }
+  });
 
+  var mailOptions = {
+    from: "2018-1-60-181@std.ewubd.edu",
+    to:`${email}`,
+    subject:"authentication",
+    text:`Your OTP is ${password}.You can change you password in the following link : http://localhost:4200/register`
+  }
+
+  transport.sendMail(mailOptions,function(err,info){
+    if(err){
+      console.log(err)
+    }else{
+      console.log("Email send")
+    }
+  });
+ 
+}
+
+
+//authorization
+router.get("/authentication/:id",  async (req, res) => {
+  const _id = req.params.id;
+  console.log(_id, "hello")
+  const userUpdateAuth = await User.updateOne({_id
+    : _id}, { authentication: 1 })
+  if (!userUpdateAuth) {
+    res.status(400).send({ message: "Authentication is not done" });
+  }
+  res.send(userUpdateAuth);
+});
 
 
 module.exports = router;

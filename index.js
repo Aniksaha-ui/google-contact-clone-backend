@@ -35,6 +35,6 @@ app.get("/", (req, res) => {
 app.use("/user", userHandler);
 
 app.listen(port, (a) => {
-  console.log(a);
+  // console.log(a);
   console.log(`app listening at port ${port}`);
 });

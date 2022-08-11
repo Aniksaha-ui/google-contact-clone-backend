@@ -19,23 +19,15 @@ const userSchema = mongoose.Schema({
     required: true, 
     trim: true,
     lowercase: true
-    // validate(value){
-    //     if(!validator.isEmail(value)){
-    //         throw new Error("invalid error")
-    //     }
-    // }
+
   },
  
   password: {
     type:String,
     required: true, 
     trim: true,
-    minlength:7,
-    // validate(value){
-    //     if(value.toLowerCase().includes('password')){
-    //         throw new Error(`password can not contain the keyword "password" `)
-    //     }
-    // }
+    minlength:4,
+
   },
 
   authentication:{
@@ -46,11 +38,7 @@ const userSchema = mongoose.Schema({
   phone: {
     type:Number,
     trim: true
-    // validate(value){
-    //     if(!validatePhoneNumber.validate(value)){
-    //         throw new Error(`Not a valid phone number`)
-    //     }
-    // }
+
   },
 });
 

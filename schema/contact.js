@@ -69,6 +69,9 @@ const contactSchema = mongoose.Schema({
   },
   notes:{
     type:String
+  },
+  useremail:{
+    type:String
   }
 
 });
